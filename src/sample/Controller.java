@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.PieChart;
+import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 
 import java.io.BufferedReader;
@@ -18,6 +19,7 @@ public class Controller {
 
     @FXML public PieChart listChart;
     @FXML public PieChart IPChart;
+    @FXML public Label cnt;
 
     /*
     @FXML
@@ -41,12 +43,9 @@ public class Controller {
         String fileName = fc.showOpenDialog(null).toString();
         logFile = new readFile(fileName);
 
-        ObservableList<PieChart.Data> list =
-                FXCollections.observableArrayList();
-
-
-
         IPChart.setData(logFile.getIP());
+
+        cnt.setText("" + logFile.lineCnt);
 
     }
 
@@ -55,6 +54,7 @@ public class Controller {
 
 class readFile{
     public BufferedReader br;
+    int lineCnt;
     
     public readFile(String fileName) {
         try {
@@ -72,6 +72,7 @@ class readFile{
         try {
             String line;
             Matcher matcher;
+            int lineCnt = 0;
 
             Pattern pattern = Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})");
 
@@ -83,12 +84,13 @@ class readFile{
 
                 matcher = pattern.matcher(br.readLine());
                 matcher.find();
+
                 try {
                     name = matcher.group(1);
                 } catch (Exception e) {
                     continue;
                 }
-                System.out.println(name);
+
                 if (countMap.containsKey(name)) {
 
                     sum = countMap.get(name);
@@ -97,12 +99,14 @@ class readFile{
                 } else {
                     countMap.put(name, 0);
                 }
+
+                lineCnt++;
             }
 
             for(String key: countMap.keySet() ) {
                 list.add(new PieChart.Data(key, countMap.get(key)));
             }
-            System.out.println(list);
+            this.lineCnt = lineCnt;
             return list;
 
 
